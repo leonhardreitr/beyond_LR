@@ -384,3 +384,169 @@ performance::compare_performance(mod1,mod2)
     -------------------------------------------------------------------------------------------------
     mod1 |    lm | 325.4 (0.500) |  325.6 (0.500) | 333.8 (0.500) | 0.513 |     0.509 | 0.896 | 0.903
     mod2 |    lm | 325.4 (0.500) |  325.6 (0.500) | 333.8 (0.500) | 0.513 |     0.509 | 0.896 | 0.903
+
+Are any assumption fullfilled?
+
+``` r
+performance::check_model(mod1)
+```
+
+![](Chapter1_files/figure-commonmark/unnamed-chunk-9-1.png)
+
+``` r
+d |> 
+  ggplot(
+    aes(
+      x = year,
+      y = speed
+    )
+  ) +
+  geom_point(
+    shape = "o", 
+    size = 3
+  ) +
+  geom_smooth(method = "lm", se = F, col = "darkorange2") +
+  stat_smooth(method = "lm", formula = y ~ x + I(x^2), 
+              se = FALSE, linetype = 2, col = "darkgreen")
+```
+
+    `geom_smooth()` using formula = 'y ~ x'
+
+![](Chapter1_files/figure-commonmark/unnamed-chunk-10-1.png)
+
+``` r
+mod3 <- 
+d |> 
+mutate(yearnew2 = yearnew^2) |> 
+  lm(speed ~ yearnew2, data = _)
+
+summary(mod3)
+```
+
+
+    Call:
+    lm(formula = speed ~ yearnew2, data = mutate(d, yearnew2 = yearnew^2))
+
+    Residuals:
+        Min      1Q  Median      3Q     Max 
+    -3.5120 -0.6418  0.2079  0.7519  1.9300 
+
+    Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+    (Intercept) 5.231e+01  1.399e-01 373.982  < 2e-16 ***
+    yearnew2    1.760e-04  2.123e-05   8.289  1.9e-13 ***
+    ---
+    Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    Residual standard error: 1.033 on 120 degrees of freedom
+    Multiple R-squared:  0.3641,    Adjusted R-squared:  0.3588 
+    F-statistic: 68.71 on 1 and 120 DF,  p-value: 1.899e-13
+
+``` r
+performance::compare_performance(mod1,mod3)
+```
+
+    # Comparison of Model Performance Indices
+
+    Name | Model | AIC (weights) | AICc (weights) | BIC (weights) |    R2 | R2 (adj.) |  RMSE | Sigma
+    -------------------------------------------------------------------------------------------------
+    mod1 |    lm | 325.4 (>.999) |  325.6 (>.999) | 333.8 (>.999) | 0.513 |     0.509 | 0.896 | 0.903
+    mod3 |    lm | 358.0 (<.001) |  358.2 (<.001) | 366.4 (<.001) | 0.364 |     0.359 | 1.024 | 1.033
+
+``` r
+lm(speed ~ fast, data = d) -> mod4
+
+t.test(speed ~ fast, data = d) |> 
+  effectsize::effectsize()
+```
+
+    Warning: Unable to retrieve data from htest object.
+      Returning an approximate effect size using t_to_d().
+
+    d     |         95% CI
+    ----------------------
+    -1.91 | [-2.60, -1.21]
+
+``` r
+mod5 <- 
+lm(speed ~ year + fast, data = d)
+summary(mod5)
+```
+
+
+    Call:
+    lm(formula = speed ~ year + fast, data = d)
+
+    Residuals:
+         Min       1Q   Median       3Q      Max 
+    -2.36881 -0.43536  0.03596  0.45848  1.55688 
+
+    Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+    (Intercept) 8.100913   3.731649   2.171   0.0319 *  
+    year        0.022583   0.001919  11.769  < 2e-16 ***
+    fast        1.226846   0.150721   8.140 4.39e-13 ***
+    ---
+    Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    Residual standard error: 0.7269 on 119 degrees of freedom
+    Multiple R-squared:  0.6874,    Adjusted R-squared:  0.6822 
+    F-statistic: 130.8 on 2 and 119 DF,  p-value: < 2.2e-16
+
+``` r
+anova(mod4,mod5)
+```
+
+    Analysis of Variance Table
+
+    Model 1: speed ~ fast
+    Model 2: speed ~ year + fast
+      Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
+    1    120 136.080                                  
+    2    119  62.886  1    73.194 138.51 < 2.2e-16 ***
+    ---
+    Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+performance::compare_performance(
+  mod4, mod5
+)
+```
+
+    # Comparison of Model Performance Indices
+
+    Name | Model | AIC (weights) | AICc (weights) | BIC (weights) |    R2 | R2 (adj.) |  RMSE | Sigma
+    -------------------------------------------------------------------------------------------------
+    mod4 |    lm | 365.5 (<.001) |  365.7 (<.001) | 374.0 (<.001) | 0.324 |     0.318 | 1.056 | 1.065
+    mod5 |    lm | 273.4 (>.999) |  273.7 (>.999) | 284.6 (>.999) | 0.687 |     0.682 | 0.718 | 0.727
+
+``` r
+ggplot(
+  d,
+  aes(
+    x = year,
+    y = speed,
+    group = as.character(fast)
+  )
+) +
+  geom_smooth(method = "lm",
+              se = F,
+              aes(
+                col = as.character(fast),
+                lty = as.character(fast)
+              ))
+```
+
+    `geom_smooth()` using formula = 'y ~ x'
+
+![](Chapter1_files/figure-commonmark/unnamed-chunk-13-1.png)
+
+``` r
+mod6 <- lm(speed ~ yearnew * fast, data = d)
+
+library(interactions)
+interact_plot(mod6, pred = yearnew, modx = fast, interval = TRUE,
+  int.type = "confidence", int.width = .8)
+```
+
+![](Chapter1_files/figure-commonmark/unnamed-chunk-14-1.png)
