@@ -19,3 +19,4 @@ library(broom)
 library(tidyverse)    
 ```
 
+This book aims to provide us with ways to deal with non-normal and/or nested data: GLM and (G)MLM
