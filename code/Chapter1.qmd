@@ -1,0 +1,21 @@
+---
+title: Chapter 1
+format: gfm
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: Packages
+#| title: Packages
+
+library(knitr) 
+library(gridExtra)
+library(GGally)
+library(kableExtra)
+library(jtools)
+library(rsample)
+library(broom)
+library(tidyverse)    
+```
+
