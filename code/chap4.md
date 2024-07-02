@@ -47,7 +47,7 @@ regressions, independent observations
 ``` r
 url_string <- "https://raw.githubusercontent.com/proback/BeyondMLR/master/data/fHH1.csv"
 d <- read.csv(url(url_string))
-glimpse(d)
+glimpse(d) 
 ```
 
     Rows: 1,500
