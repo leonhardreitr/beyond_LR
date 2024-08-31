@@ -87,3 +87,30 @@ p_val
 effectsize::f_to_eta2(f = f_test$stat)
 
 # Something I am missing from this work flow are effect sizes. 
+# Or model comparison. However, given that this is part of the tidymodels framework, the latter might be on me
+
+# Multiple regression -----------------------------------------------------
+
+# Same as before, well almost. Now the fit() function is used instead of calculate.
+# We fit() linear models on data resampled according to the null hypothesis, supplying model coefficients for each explanatory variable
+
+observed_fit <- d |> 
+  specify(hours ~ age * college) |> 
+  fit()
+
+null_fits <- d |> 
+  specify(hours ~ age * college) |> 
+  hypothesize(null = "independence") |> 
+  generate(reps = 1000, type = "permute") |> 
+  fit()
+
+null_fits
+
+get_confidence_interval(
+  null_fits, 
+  point_estimate = observed_fit, 
+  level = .90
+)
+
+visualize(null_fits,) + 
+  shade_p_value(observed_fit, direction = "both")
